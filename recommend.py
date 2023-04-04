@@ -19,37 +19,37 @@ def filter_categories(bus_id):
         # Get the intersection of categories between target business and every other business
         {
             '$project':
-            {
-                'intersection':
                 {
-                    '$setIntersection': [
-                        cur_bus['split_categories'],
-                        '$split_categories'
-                    ]
+                    'intersection':
+                        {
+                            '$setIntersection': [
+                                cur_bus['split_categories'],
+                                '$split_categories'
+                            ]
+                        },
+                    'business_id': 1
                 },
-                'business_id': 1
-            },
         },
         # Only output results have at least one category in common and are not none
         {
             '$match':
-            {
-                '$and':
-                [
-                    {
-                        'intersection':
-                        {
-                            '$ne': []
-                        }
-                    },
-                    {
-                        'intersection':
-                        {
-                            '$ne': None
-                        }
-                    }
-                ]
-            }
+                {
+                    '$and':
+                        [
+                            {
+                                'intersection':
+                                    {
+                                        '$ne': []
+                                    }
+                            },
+                            {
+                                'intersection':
+                                    {
+                                        '$ne': None
+                                    }
+                            }
+                        ]
+                }
         }
     ]
 
@@ -96,9 +96,9 @@ def find_closest(lst_of_ids, max_dist, coords):
             # Only return businesses within the specified lst_of_ids
             '$match': {
                 'business_id':
-                {
-                    '$in': lst_of_ids
-                }
+                    {
+                        '$in': lst_of_ids
+                    }
             }
         },
         {
@@ -111,6 +111,16 @@ def find_closest(lst_of_ids, max_dist, coords):
 
     # execute the pipeline and convert result to a list
     return list(BUSINESSES.aggregate(pipeline))
+
+
+def get_reviews(business_id):
+    """Function takes in a business_id and returns a dataframe of all the corresponding reviews"""
+    # match business_id
+    pipeline = [{'$match': {'business_id': business_id}}]
+    cursor = REVIEWS.aggregate(pipeline)
+    # Build df and sort
+    df = pd.DataFrame([x for x in cursor]).drop(columns=['_id', 'review_id']).sort_values(by=['adjusted_score', 'date'], ascending=False)
+    return df
 
 
 def make_recommendations(business_id, max_dist, location_coords=None):
@@ -145,8 +155,9 @@ def make_recommendations(business_id, max_dist, location_coords=None):
 
     # Return the dataframe, sorted by recommed_score and dropping redundant columns
     return dct.sort_values(by='recommend_score', ascending=False).reset_index(drop=True).drop(
-        columns=['_id', 'is_open', 'attributes', 'categories'])
+        columns=['_id', 'is_open', 'attributes', 'split_categories', 'hours', 'coord']).head(20)
 
 
 if __name__ == '__main__':
-    print(make_recommendations('jcL_qaGJiappzpnn-ifSoA', 16000))
+    # print(make_recommendations('jcL_qaGJiappzpnn-ifSoA', 16000))
+    print(get_reviews('jcL_qaGJiappzpnn-ifSoA'))
