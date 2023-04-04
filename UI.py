@@ -48,7 +48,12 @@ def update_output(n_clicks, business_id, max_dist):
 
     else:
         # Call the make_recommendations function with the input values
-        rec_df = make_recommendations(business_id, max_dist)
+
+        try:
+            rec_df = make_recommendations(business_id, max_dist)
+
+        except TypeError:
+            return ''
 
         # Round off big floats
         rec_df['distance'] = rec_df['distance'].round(3)
@@ -221,4 +226,4 @@ def selected_row_and_show_reviews(active_cell):
 
 
 if __name__ == '__main__':
-    app.run_server(debug=False)
+    app.run_server(debug=True)
