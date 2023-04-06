@@ -8,6 +8,12 @@ REVIEWS = DB['review']
 
 
 def filter_categories(bus_id):
+    """
+    Find all businesses that have a category in common with the selected business
+
+    :param bus_id: str, ID of input business
+
+    """
     # Access the json of the desired business
     cur_bus = BUSINESSES.find_one(
         {
@@ -72,7 +78,7 @@ def find_closest(lst_of_ids, max_dist, coords):
     :param lst_of_ids: list of possible business IDs
     :param max_dist: int, maximum distance to search (meters)
     :param coords: list of origin coords [longitude, latitude]
-    :return:
+    :return: list of businesse
     """
     # define the pipeline
     pipeline = [
@@ -114,7 +120,12 @@ def find_closest(lst_of_ids, max_dist, coords):
 
 
 def get_reviews(business_id):
-    """Function takes in a business_id and returns a dataframe of all the corresponding reviews"""
+    """
+    Function takes in a business_id and returns a dataframe of all the corresponding reviews
+
+    :param business_id: string, ID of input business
+
+    """
     # match business_id
     pipeline = [{'$match': {'business_id': business_id}}]
     cursor = REVIEWS.aggregate(pipeline)
