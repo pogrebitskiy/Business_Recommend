@@ -22,6 +22,7 @@ app.layout = html.Div([
         dcc.Input(id='business-id', type='text', value='', placeholder='Enter a business ID'),
         html.Br(),
         html.Label('Max Distance'),
+        html.Spacer(),
         dcc.Input(id='max-dist', type='number', value=16000),
         html.Br(),
         html.Button('Get Recommendations', id='submit-button', n_clicks=0),
@@ -226,4 +227,4 @@ def selected_row_and_show_reviews(active_cell):
 
 
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    app.run_server(debug=False)
